@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personal OS | Fashion Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap');
+
+        :root {
+            --apple-blue: #007AFF;
+            --glass-bg: rgba(255, 255, 255, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.3);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: radial-gradient(circle at top left, #e2e8f0, #f8fafc, #ffffff);
+            min-height: 100vh;
+            color: #1d1d1f;
+        }
+
+        /* Glassmorphism Classes */
+        .tf-glass {
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05);
+        }
+
+        .tf-sidebar {
+            width: 260px;
+            transition: all 0.3s ease;
+        }
+
+        /* Hide Sidebar in Extension Mode */
+        @media (max-width: 450px) {
+            .tf-sidebar { display: none; }
+            .tf-main-content { padding: 16px; }
+            .tf-dashboard-container { flex-direction: column; }
+        }
+
+        .tf-nav-link {
+            transition: all 0.2s;
+            border-radius: 12px;
+        }
+
+        .tf-nav-link:hover, .tf-nav-link.active {
+            background: rgba(0, 122, 255, 0.1);
+            color: var(--apple-blue);
+        }
+
+        .tf-card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+        }
+
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+
+    <div id="authView" class="flex items-center justify-center min-height-screen p-6 pt-20">
+        <div class="tf-glass p-10 rounded-[32px] w-full max-w-[400px] text-center">
+            <div class="mb-8">
+                <div class="w-16 h-16 bg-blue-500 rounded-2xl mx-auto mb-4 flex items-center justify-center text-white text-2xl">
+                    <i class="fas fa-tshirt"></i>
+                </div>
+                <h2 class="text-2xl font-semibold tracking-tight">Welcome Back</h2>
+                <p class="text-gray-500 text-sm mt-2">Sign in to sync your wardrobe</p>
+            </div>
+
+            <button onclick="login()" class="w-full flex items-center justify-center gap-3 bg-white border border-gray-200 p-4 rounded-xl font-medium hover:bg-gray-50 transition mb-4">
+                <img src="https://www.gstatic.com/images/branding/product/1x/gsa_512dp.png" class="w-5 h-5">
+                Continue with Google
+            </button>
+
+            <div class="relative my-6">
+                <div class="absolute inset-0 flex items-center"><span class="w-full border-t border-gray-200"></span></div>
+                <div class="relative flex justify-center text-xs uppercase"><span class="bg-transparent px-2 text-gray-400">Or email</span></div>
+            </div>
+
+            <input type="email" placeholder="Email" class="w-full p-4 rounded-xl border border-gray-100 bg-white/50 mb-3 focus:outline-none focus:ring-2 focus:ring-blue-400">
+            <button onclick="login()" class="w-full bg-[#007AFF] text-white p-4 rounded-xl font-semibold hover:opacity-90 transition">Sign In</button>
+        </div>
+    </div>
+
+    <div id="dashboardView" class="hidden flex h-screen tf-dashboard-container">
+        
+        <aside class="tf-sidebar tf-glass m-4 rounded-[24px] p-6 flex flex-col">
+            <div class="flex items-center gap-3 mb-10 px-2">
+                <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white text-xs">OS</div>
+                <span class="font-bold text-lg">Personal OS</span>
+            </div>
+
+            <nav class="space-y-2 flex-grow">
+                <a href="#" onclick="showSection('tryon')" class="tf-nav-link active flex items-center gap-3 p-4">
+                    <i class="fas fa-magic"></i> Try-On
+                </a>
+                <a href="#" onclick="showSection('history')" class="tf-nav-link flex items-center gap-3 p-4">
+                    <i class="fas fa-history"></i> Wardrobe
+                </a>
+                <a href="#" class="tf-nav-link flex items-center gap-3 p-4">
+                    <i class="fas fa-user-circle"></i> Profile
+                </a>
+            </nav>
+
+            <button onclick="logout()" class="mt-auto text-gray-400 hover:text-red-500 p-4 text-left transition">
+                <i class="fas fa-sign-out-alt mr-2"></i> Log Out
+            </button>
+        </aside>
+
+        <main class="tf-main-content flex-grow p-8 overflow-y-auto">
+            
+            <section id="tryonSection">
+                <header class="mb-10">
+                    <h1 class="text-3xl font-bold">New Outfit</h1>
+                    <p class="text-gray-500">Combine your items to see the result</p>
+                </header>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                    <div class="tf-glass p-8 rounded-[24px] text-center border-dashed border-2 border-gray-300">
+                        <p class="text-sm font-medium text-gray-400 uppercase tracking-widest mb-4">Target Person</p>
+                        <div class="w-full h-48 bg-gray-100 rounded-xl flex items-center justify-center text-gray-400 mb-4">
+                            <i class="fas fa-user text-4xl"></i>
+                        </div>
+                        <button class="text-blue-500 font-semibold">+ Upload Sam</button>
+                    </div>
+                    <div class="tf-glass p-8 rounded-[24px] text-center border-dashed border-2 border-gray-300">
+                        <p class="text-sm font-medium text-gray-400 uppercase tracking-widest mb-4">Garment Item</p>
+                        <div class="w-full h-48 bg-gray-100 rounded-xl flex items-center justify-center text-gray-400 mb-4">
+                            <i class="fas fa-shirt text-4xl"></i>
+                        </div>
+                        <button class="text-blue-500 font-semibold">+ Pick Item</button>
+                    </div>
+                </div>
+
+                <button class="w-full bg-[#007AFF] text-white p-6 rounded-2xl font-bold text-lg shadow-xl shadow-blue-200 hover:scale-[1.01] transition transform">
+                    Generate Virtual Look
+                </button>
+            </section>
+
+            <section id="historySection" class="hidden">
+                <header class="mb-10 flex justify-between items-center">
+                    <div>
+                        <h1 class="text-3xl font-bold">Your Wardrobe</h1>
+                        <p class="text-gray-500">History of your virtual fits</p>
+                    </div>
+                    <button class="bg-white p-3 rounded-xl border border-gray-200"><i class="fas fa-filter"></i></button>
+                </header>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" id="galleryGrid">
+                    </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        // Fake state for demo
+        function login() {
+            document.getElementById('authView').classList.add('hidden');
+            document.getElementById('dashboardView').classList.remove('hidden');
+            loadGallery();
+        }
+
+        function logout() {
+            document.getElementById('dashboardView').classList.add('hidden');
+            document.getElementById('authView').classList.remove('hidden');
+        }
+
+        function showSection(sectionId) {
+            document.getElementById('tryonSection').classList.add('hidden');
+            document.getElementById('historySection').classList.add('hidden');
+            document.getElementById(sectionId + 'Section').classList.remove('hidden');
+            
+            // Update nav active state
+            document.querySelectorAll('.tf-nav-link').forEach(link => link.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+        }
+
+        function loadGallery() {
+            const grid = document.getElementById('galleryGrid');
+            const items = [
+                { date: 'Jan 24, 2026', img: 'https://images.unsplash.com/photo-1594932224491-ef2443e73034?auto=format&fit=crop&q=80&w=400' },
+                { date: 'Jan 22, 2026', img: 'https://images.unsplash.com/photo-1593030761757-71fae45fa0e7?auto=format&fit=crop&q=80&w=400' },
+                { date: 'Jan 15, 2026', img: 'https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&q=80&w=400' }
+            ];
+
+            grid.innerHTML = items.map(item => `
+                <div class="tf-glass tf-card-hover rounded-[24px] overflow-hidden transition cursor-pointer">
+                    <img src="${item.img}" class="w-full h-64 object-cover">
+                    <div class="p-4 flex justify-between items-center">
+                        <span class="text-xs font-semibold text-gray-400 uppercase">${item.date}</span>
+                        <i class="fas fa-ellipsis-h text-gray-300"></i>
+                    </div>
+                </div>
+            `).join('');
+        }
+    </script>
+</body>
+</html>

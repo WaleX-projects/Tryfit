@@ -1,0 +1,15 @@
+# Web Framework
+fastapi==0.109.0
+uvicorn[standard]==0.27.0
+python-multipart==0.0.9
+
+# AI Services & Networking
+httpx==0.27.0
+fashn==0.5.1
+python-dotenv==1.0.1
+
+# Image Processing (Fixes the aspect ratio errors)
+Pillow==10.2.0
+numpy==1.26.4
+#google ai Processing
+google-genai==1.0.0

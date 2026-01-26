@@ -1,0 +1,27 @@
+{
+  "manifest_version": 3,
+  "name": "TryFit",
+  "description": "Try on clothes instantly while shopping online",
+  "version": "0.1",
+  "icons": { "128": "icon.png" },
+  "permissions": ["activeTab", "scripting"],
+  "host_permissions": ["<all_urls>"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "css": ["styles.css"]
+    }
+  ],
+  "action": {
+    "default_popup": "popup.html"
+  },
+
+  "side_panel": {
+    "default_path": "popup.html"
+  }
+
+}

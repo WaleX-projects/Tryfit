@@ -1,0 +1,140 @@
+/* Unique namespace tf- to avoid site conflicts */
+
+.tf-inject-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: #111;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: 20px;
+  cursor: pointer;
+  z-index: 2147483647;
+  opacity: 0;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+/* Show button on parent hover */
+*:hover > .tf-inject-btn {
+  opacity: 1;
+}
+
+.tf-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(8px);
+  z-index: 2147483648;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: tfFadeIn 0.3s ease;
+}
+
+.tf-popup {
+  background: white;
+  width: 400px;
+  max-width: 90vw;
+  border-radius: 24px;
+  padding: 32px;
+  position: relative;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+  font-family: -apple-system, system-ui, sans-serif;
+}
+
+.tf-header { text-align: center; margin-bottom: 24px; }
+.tf-header h2 { margin: 0; font-size: 20px; color: #111; }
+.tf-header p { margin: 4px 0 0; font-size: 13px; color: #666; }
+
+.tf-close {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  border: none;
+  background: #f5f5f7;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 20px;
+}
+
+.tf-stage {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.tf-preview-box {
+  flex: 1;
+  height: 180px;
+  background: #f5f5f7;
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  border: 2px dashed transparent;
+  transition: border 0.2s;
+  cursor: pointer;
+}
+
+.tf-preview-box:hover { border-color: #007AFF; }
+
+.tf-preview-box label {
+  position: absolute;
+  bottom: 8px;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #999;
+}
+
+.tf-preview-box img { max-width: 100%; max-height: 100%; object-fit: cover; }
+
+.tf-main-btn {
+  width: 100%;
+  padding: 16px;
+  background: #007AFF;
+  color: white;
+  border: none;
+  border-radius: 14px;
+  font-weight: 600;
+  font-size: 15px;
+  cursor: pointer;
+  transition: transform 0.1s;
+}
+
+.tf-main-btn:disabled { background: #ccc; cursor: not-allowed; }
+.tf-main-btn:active { transform: scale(0.98); }
+
+/* Result Area & Shimmer */
+.tf-result-hidden { display: none; }
+.tf-result-visible {
+  margin: 16px 0;
+  padding: 16px;
+  background: #f9f9fb;
+  border-radius: 16px;
+  text-align: center;
+}
+
+.tf-shimmer {
+  color: #007AFF;
+  font-weight: 500;
+  animation: tfPulse 1.5s infinite;
+}
+
+.tf-icon {
+  width: 48px;
+  height: 48px;
+  margin-bottom: 12px;
+}
+@keyframes tfFadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes tfPulse { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
