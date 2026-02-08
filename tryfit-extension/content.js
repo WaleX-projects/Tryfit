@@ -151,7 +151,7 @@ const UI = {
         resultArea.innerHTML = `
           <div class="tf-final-container">
             <h3>Your Result</h3>
-            <img src="${data.resultImg}" />
+            <img src="${data.resultImg}" style='max-width:100%'/>
             <a class="tf-download-btn" href="${data.resultImg}" download>Download Look</a>
           </div>
         `;
