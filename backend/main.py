@@ -1,8 +1,9 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
-from leo_model import LeonardoTryOnService
+from google_model import GeminiService
 from fastapi.middleware.cors import CORSMiddleware
-
+from dotenv import load_dotenv
+import os
 app = FastAPI()
 
 app.add_middleware(
@@ -14,7 +15,8 @@ app.add_middleware(
 )
 
 # Initialize
-Leo_ai = LeonardoTryOnService(api_key="18492506-7497-41b3-a6f4-37969860acf8")
+api_key = os.getenv('api_key')
+geminiService = GeminiService(api_key=api_key)
 
 class TryOnRequest(BaseModel):
     product_image: str
@@ -24,7 +26,7 @@ class TryOnRequest(BaseModel):
 async def handle_try_on(request: TryOnRequest):
     try:
         # This now waits until the image is actually READY
-        final_url =  Leo_ai.generate_fit(
+        final_url =  geminiService.generate_fit(
             request.product_image, 
             request.user_image
         )

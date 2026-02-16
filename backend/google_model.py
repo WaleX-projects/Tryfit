@@ -15,10 +15,10 @@ class GeminiService:
         # We tell the model exactly what each image is
         prompt = (
             "You are a professional fashion editor. I have provided two images: "
-            "1. A photo of a man. 2. A photo of a blazer. "
-            "Generate a new photorealistic image of the EXACT same man from image 1 "
+            f"1. {garment_base64}. 2. {human_base64}. "
+            "Generate a new photorealistic image of the EXACT same person from image 1 "
             "wearing the EXACT blazer from image 2. "
-            "Keep his face, hair, and body shape identical. Ensure a masculine fit."
+            "Keep his face, hair, and body shape identical. ."
         )
 
         # Convert base64 strings to bytes

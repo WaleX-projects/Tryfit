@@ -1,6 +1,8 @@
 # 👕 Personal OS: AI Virtual Try-On Extension
 
-An AI-powered Chrome extension that allows users to virtually "try on" clothes from eCommerce sites like Jumia using **Bria AI** and **Fashn.ai**. It includes a sleek, Glassmorphism dashboard to track your style history.
+An AI-powered Chrome extension that allows users to virtually "try on" clothes from eCommerce sites like Jumia using **Gemini AI **. It includes a sleek dashboard to track your style history.
+
+![demo image](screenshot.png)
 
 
 
@@ -17,10 +19,26 @@ An AI-powered Chrome extension that allows users to virtually "try on" clothes f
 - **Database/Auth**: Firebase (Firestore & Google Auth).
 
 ## 🚀 Getting Started
-
-### 1. Backend Setup
+## 1. Clone repo 
+ ```env
+   git clone https://github.com/WaleX-projects/Tryfit.git
+```
+### 2. Backend Setup
 1. Navigate to `/backend`.
 2. Create a `.env` file and add your API keys:
    ```env
-   BRIA_API_KEY=your_key
-   FASHN_API_KEY=your_key
+   api_key = ...
+   ```
+3. ```env
+   python manage.py makemigrations
+
+   python manage.py migrate
+   ```
+4. RUN the backend server
+```env
+   python manage.py runserver
+   ```
+
+   
+## 3. Frontend setup and deployment
+1. deploy to google chrome extenstion 
