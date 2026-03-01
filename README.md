@@ -1,6 +1,6 @@
 # 👕 Personal OS: AI Virtual Try-On Extension
 
-An AI-powered Chrome extension that allows users to virtually "try on" clothes from eCommerce sites like Jumia using **Gemini AI **. It includes a sleek dashboard to track your style history.
+An AI-powered Chrome extension that allows users to virtually "try on" clothes from eCommerce sites like Jumia using **AWS Nova AI **. It includes a sleek dashboard to track your style history.
 
 ![demo image](screenshot.png)
 
