@@ -14,9 +14,9 @@ An AI-powered Chrome extension that allows users to virtually "try on" clothes f
 
 ## 🛠️ Tech Stack
 - **Frontend**: HTML5, Tailwind CSS (Apple Minimalist/Glassmorphism design).
-- **Backend**: Python (FastAPI), Uvicorn.
-- **AI Models**: Bria AI (Image Generation), Fashn.ai (Virtual Try-On SDK).
-- **Database/Auth**: Firebase (Firestore & Google Auth).
+- **Backend**: Python (Django), Uvicorn.
+- **AI Models**: AWS Nova(Image Generation).
+- **Auth**:  Google Auth.
 
 ## 🚀 Getting Started
 ## 1. Clone repo 
