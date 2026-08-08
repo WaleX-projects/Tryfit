@@ -1,11 +1,22 @@
-from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
-from google_model import GeminiService
-from fastapi.middleware.cors import CORSMiddleware
-from dotenv import load_dotenv
 import os
-app = FastAPI()
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from routers.webhook import router as webhook_router 
+from routers.image import router as image_router
+from routers.auth import auth_router
+from fastapi import WebSocket
+from routers.gallery import gallery_router
+app = FastAPI(
+    title="TryFit AI Virtual Try-On Backend",
+    description="FastAPI service with Google OAuth authentication and YouCam virtual try-on API integration.",
+    version="1.0.0",
+    servers=[
+        {"url": "https://tryfit.ddns.net", "description": "Production (HTTPS)"},
+        {"url": "http://localhost:8000", "description": "Local Development"},
+    ],
+)
 
+# Enable CORS for all origins
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -14,32 +25,19 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Initialize
-api_key = os.getenv('api_key')
-geminiService = GeminiService(api_key=api_key)
+# Include routers for different functionalities
+app.include_router(image_router) 
+app.include_router(webhook_router)
+app.include_router(auth_router)
+app.include_router(gallery_router)
 
-class TryOnRequest(BaseModel):
-    product_image: str
-    user_image: str
 
-@app.post("/api/try-on")
-async def handle_try_on(request: TryOnRequest):
-    try:
-        # This now waits until the image is actually READY
-        final_url =  geminiService.generate_fit(
-            request.product_image, 
-            request.user_image
-        )
-        #result = service.generate_fit(human, garment)
-        return {
-            "status": "success",
-            "result_image": final_url 
-        }
-    except Exception as e:
-        print(f"Server Error: {e}")
-        # Return the actual error message so you can debug in the extension
-        raise HTTPException(status_code=500, detail=str(e))
+@app.get("/")
+def root():
+    return {"message": "Tryfit API is active."}
 
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="127.0.0.1", port=8000)
+
+
+
+
+

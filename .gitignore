@@ -1,5 +1,7 @@
-test-extenstiion/
-backend/leo_model.py
-backend/test.py
-backend/__pycache__/leo_model.cpython-39.pyc
-backend/__pycache__/test.cpython-39.pyc
+# Virtual environment
+backend/venv/
+backend/.env/
+
+# environment variables
+backend/.env
+frontend/.env

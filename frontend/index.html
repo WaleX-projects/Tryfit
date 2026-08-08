@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tryfit — Instant AI Virtual Try-On for E-Commerce & Fashion</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #FBFBFB;
+      --panel: #FFFFFF;
+      --ink: #121212;
+      --ink-soft: #6B6B6B;
+      --ink-faint: #A8A8A4;
+      --line: rgba(18,18,18,0.08);
+      --sage: #8A9A86;
+      --espresso: #2C221E;
+      --amber: #F59E0B;
+      --emerald: #10B981;
+      --radius-lg: 20px;
+      --radius-md: 14px;
+      --radius-sm: 9999px;
+      --ease: cubic-bezier(.22,.68,0,1);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: radial-gradient(120% 90% at 50% -10%, #ffffff 0%, var(--bg) 55%);
+      color: var(--ink);
+      font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      max-width: 1200px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 24px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-mark {
+      width: 28px;
+      height: 28px;
+      background: var(--espresso);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-weight: 800;
+      font-size: 14px;
+    }
+
+    .brand-word {
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+    }
+
+    .nav-cta {
+      background: var(--espresso);
+      color: #fff;
+      padding: 10px 20px;
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: opacity .2s var(--ease);
+    }
+    .nav-cta:hover { opacity: 0.9; }
+
+    /* Hero Section */
+    .hero {
+      max-width: 1200px;
+      width: 100%;
+      margin: auto;
+      padding: 40px 32px 80px;
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 60px;
+      align-items: center;
+    }
+
+    @media (max-width: 900px) {
+      .hero { grid-template-columns: 1fr; text-align: center; gap: 40px; }
+      .hero-content { display: flex; flex-direction: column; align-items: center; }
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 6px 14px;
+      background: rgba(138,154,134,0.15);
+      color: var(--espresso);
+      font-size: 11.5px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      border-radius: var(--radius-sm);
+      margin-bottom: 20px;
+    }
+
+    .hero-title {
+      font-size: clamp(36px, 4.5vw, 52px);
+      font-weight: 800;
+      line-height: 1.15;
+      letter-spacing: -0.03em;
+      color: var(--ink);
+      margin: 0 0 20px;
+    }
+
+    .hero-title span {
+      color: var(--sage);
+    }
+
+    .hero-desc {
+      font-size: 16px;
+      color: var(--ink-soft);
+      line-height: 1.6;
+      margin: 0 0 32px;
+      max-width: 500px;
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 14px;
+      align-items: center;
+    }
+
+    .btn-primary {
+      padding: 15px 28px;
+      background: var(--espresso);
+      color: #fff;
+      border-radius: var(--radius-sm);
+      font-size: 14px;
+      font-weight: 600;
+      text-decoration: none;
+      box-shadow: 0 10px 24px -10px rgba(44,34,30,0.4);
+      transition: transform .15s var(--ease), opacity .15s var(--ease);
+    }
+    .btn-primary:hover { opacity: 0.92; transform: translateY(-1px); }
+
+    .btn-secondary {
+      padding: 15px 28px;
+      background: transparent;
+      color: var(--ink);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-sm);
+      font-size: 14px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: background .15s var(--ease);
+    }
+    .btn-secondary:hover { background: rgba(0,0,0,0.03); }
+
+    /* Interactive Extension Simulation Box */
+    .preview-container {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      padding: 24px;
+      box-shadow: 0 30px 60px -20px rgba(18,18,18,0.12);
+      max-width: 400px;
+      margin: 0 auto;
+      width: 100%;
+      position: relative;
+    }
+
+    .mock-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-bottom: 16px;
+      border-bottom: 1px dashed var(--line);
+      margin-bottom: 20px;
+    }
+
+    .mock-card-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+
+    .mock-card {
+      height: 160px;
+      background: #F4F3F0;
+      border-radius: var(--radius-md);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      color: var(--ink-soft);
+      font-size: 12px;
+      font-weight: 500;
+      border: 2px dashed rgba(138,154,134,0.4);
+    }
+
+    .mock-card.filled-user {
+      background: url('https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80') center/cover;
+      border: none;
+      position: relative;
+    }
+
+    .mock-card.filled-product {
+      background: url('https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=400&q=80') center/cover;
+      border: none;
+      position: relative;
+    }
+
+    .mock-card span {
+      background: rgba(255,255,255,0.85);
+      padding: 4px 10px;
+      border-radius: var(--radius-sm);
+      font-weight: 600;
+      color: var(--ink);
+    }
+
+    .mock-btn {
+      width: 100%;
+      padding: 14px;
+      background: var(--espresso);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-weight: 600;
+      font-size: 13.5px;
+      cursor: pointer;
+    }
+
+    footer {
+      text-align: center;
+      padding: 24px;
+      font-size: 12px;
+      color: var(--ink-faint);
+      border-top: 1px solid var(--line);
+      margin-top: auto;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="brand">
+      <div class="brand-mark">T</div>
+      <div class="brand-word">Tryfit</div>
+    </div>
+    <a href="#try" class="nav-cta">Install Extension</a>
+  </header>
+
+  <main class="hero">
+    <div class="hero-content">
+      <div class="badge">Next-Gen AI Fashion Tech</div>
+      <h1 class="hero-title">See how clothes fit you <span>instantly</span>, before buying.</h1>
+      <p class="hero-desc">Tryfit integrates directly into your browser workflow. Upload your photo and any apparel item online to preview hyper-realistic AI try-ons in seconds.</p>
+      <div class="hero-actions">
+        <a href="#" class="btn-primary">Add to Chrome — Free</a>
+        <a href="#features" class="btn-secondary">Learn More</a>
+      </div>
+    </div>
+
+    <div class="preview-container">
+      <div class="mock-topbar">
+        <div style="font-weight:700; font-size:13px; letter-spacing:0.1em;">TRYFIT STUDIO</div>
+        <div style="font-size: 11px; background: rgba(138,154,134,0.15); color: var(--espresso); padding: 4px 10px; border-radius: var(--radius-sm); font-weight:600;">3 Credits Left</div>
+      </div>
+      <div class="mock-card-grid">
+        <div class="mock-card filled-user">
+          <span>Your Photo</span>
+        </div>
+        <div class="mock-card filled-product">
+          <span>Product Item</span>
+        </div>
+      </div>
+      <button class="mock-btn">Try On Outfit (-1 credit)</button>
+    </div>
+  </main>
+
+  <footer>
+    &copy; 2026 Tryfit Inc. All rights reserved. Built for seamless style.
+  </footer>
+
+</body>
+</html>

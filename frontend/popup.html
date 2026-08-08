@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>TryFit</title>
+<link rel="stylesheet" href="popup.css">
+</head>
+<body>
+
+  <div class="app">
+
+    <header class="topbar">
+      <div class="brand">
+        <img class="brand-mark" src="icon.png" alt="TryFit Logo" onerror="this.style.display='none'">
+        <span class="brand-word">Tryfit</span>
+      </div>
+      <div class="status" id="status">
+        <span class="status-dot" id="statusDot"></span>
+        <span class="status-text" id="statusText">Connecting</span>
+      </div>
+    </header>
+
+    <!-- Account Bar (Visible when authenticated) -->
+    <div id="userBar" style="display:none; align-items:center; justify-content:space-between; padding:6px 20px; background:rgba(0,0,0,0.03); border-bottom:1px solid var(--line); font-size:11px;">
+      <span id="userEmail" style="color:var(--ink-soft); font-weight:600; overflow:hidden; text-overflow:ellipsis; max-width:200px;"></span>
+      <button id="logoutBtn" class="text-btn" style="font-size:11px; cursor:pointer;">Sign Out</button>
+    </div>
+
+    <div class="banner" id="banner"></div>
+
+    <main class="stage" id="stage">
+
+      <!-- SCREEN 0 — Splash / Auth Screen -->
+      <section class="screen active" data-screen="splash">
+        <div class="splash-hero">
+          <div class="splash-badge">AI Virtual Fitting Room</div>
+          <h1 class="splash-title">See it on you, instantly.</h1>
+          <p class="splash-subtitle">Try on any outfit from online stores with your own photo before you buy.</p>
+        </div>
+
+        <div class="splash-actions">
+          <button class="btn-google" id="googleAuthBtn" type="button">
+            <svg class="google-icon" viewBox="0 0 24 24">
+              <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z"/>
+              <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.13 0-5.78-2.11-6.73-4.96H1.2v3.15C3.21 21.32 7.32 24 12 24z"/>
+              <path fill="#FBBC05" d="M5.27 14.24c-.25-.72-.38-1.49-.38-2.24s.13-1.52.38-2.24V6.6H1.2C.43 8.13 0 9.85 0 11.6s.43 3.47 1.2 5l4.07-2.36z"/>
+              <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.32 0 3.21 2.68 1.2 6.6l4.07 3.15c.95-2.85 3.6-4.96 6.73-4.96z"/>
+            </svg>
+            Continue with Google
+          </button>
+          <p class="splash-terms">By continuing, you agree to TryFit's Terms & Privacy Policy.</p>
+        </div>
+      </section>
+
+      <!-- SCREEN 1 — Try Hub -->
+      <section class="screen" data-screen="hub">
+        <div class="hub-header-row">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <h1 class="screen-title" style="margin:0;">Try hub</h1>
+            <button class="text-btn" id="openGalleryBtn" type="button" style="font-size:11.5px; font-weight:600;">Gallery</button>
+          </div>
+          <button class="credits-badge" id="creditsBtn" type="button" title="Top up credits">
+            <svg viewBox="0 0 24 24" width="14" height="14"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span id="creditsCount">3 Credits</span>
+          </button>
+        </div>
+
+        <div class="upload-row">
+          <button class="photo-card" id="productCard" type="button" data-target="product">
+            <div class="photo-card-inner" id="productPreview">
+              <svg viewBox="0 0 24 24" class="upload-icon"><path d="M12 4v12M6 10l6-6 6 6M5 20h14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <span>Product img</span>
+            </div>
+          </button>
+
+          <button class="photo-card" id="userCard" type="button" data-target="user">
+            <div class="photo-card-inner" id="userPreview">
+              <svg viewBox="0 0 24 24" class="upload-icon"><path d="M12 4v12M6 10l6-6 6 6M5 20h14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <span>User img</span>
+            </div>
+          </button>
+        </div>
+
+        <input type="file" id="fileInput" accept="image/*" hidden>
+
+        <button class="btn-tryon" id="tryonBtn" type="button" disabled>Try on (-1 credit)</button>
+
+        <p class="hint" id="hintText">Add a product photo and your photo to continue.</p>
+      </section>
+
+      <!-- SCREEN 1.25 — Gallery -->
+      <section class="screen" data-screen="gallery">
+        <div class="payment-header">
+          <h1 class="screen-title" style="margin:0;">Your Past Try-ons</h1>
+          <button class="text-btn" id="closeGalleryBtn" type="button">Back</button>
+        </div>
+        <div class="gallery-grid" id="galleryGrid"></div>
+        <div class="gallery-empty" id="galleryEmpty" style="display:none; text-align:center; color:var(--ink-faint); margin-top:40px; font-size:13px;">
+          No saved try-ons yet.
+        </div>
+      </section>
+
+      <!-- SCREEN 1.5 — Payment / Top-up Screen -->
+      <section class="screen" data-screen="payment">
+        <div class="payment-header">
+          <h1 class="screen-title" style="margin:0;">Get More Credits</h1>
+          <button class="text-btn" id="closePaymentBtn" type="button">Back</button>
+        </div>
+
+        <div class="pricing-card">
+          <div class="pricing-badge">Most Popular</div>
+          <div class="pricing-info">
+            <span class="pricing-name">Stylist Pack</span>
+            <span class="pricing-amount">20 Try-ons</span>
+          </div>
+          <div class="pricing-price">₦2,500 <small>/ $3</small></div>
+          <button class="btn-pay" id="payFlutterwaveBtn" type="button">Pay with Flutterwave / Card</button>
+        </div>
+
+        <div class="pricing-card secondary">
+          <div class="pricing-info">
+            <span class="pricing-name">Starter Pack</span>
+            <span class="pricing-amount">5 Try-ons</span>
+          </div>
+          <div class="pricing-price">₦800 <small>/ $1</small></div>
+          <button class="btn-pay-outline" id="payStarterBtn" type="button">Select Starter</button>
+        </div>
+      </section>
+
+      <!-- SCREEN 2 — Changing Room Loading -->
+      <section class="screen" data-screen="changing">
+        <h1 class="screen-title">Changing room</h1>
+
+        <div class="loading-card">
+          <div class="loading-frame" id="loadingFrame"></div>
+          <div class="spinner" aria-hidden="true">
+            <svg viewBox="0 0 44 44"><circle cx="22" cy="22" r="19" fill="none" stroke-width="2.5"/></svg>
+          </div>
+          <p class="loading-label" id="loadingLabel">Loading&hellip;</p>
+        </div>
+
+        <button class="text-btn" id="cancelBtn" type="button">Cancel</button>
+      </section>
+
+      <!-- SCREEN 3 — Result of Try-On -->
+      <section class="screen" data-screen="result">
+        <h1 class="screen-title">Result of tryon</h1>
+
+        <div class="reveal" id="reveal">
+          <img class="reveal-img reveal-after" id="afterImg" alt="Result">
+          <div class="reveal-before-wrap" id="revealBeforeWrap">
+            <img class="reveal-img reveal-before" id="beforeImg" alt="User photo">
+          </div>
+          <div class="reveal-handle" id="revealHandle">
+            <svg viewBox="0 0 24 24"><path d="M8 6 3 12l5 6M16 6l5 6-5 6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+        </div>
+
+        <div class="thumb-row">
+          <div class="thumb-chip">
+            <img id="userThumb" alt="User img">
+            <span>User img</span>
+          </div>
+          <div class="thumb-chip">
+            <img id="productThumb" alt="Product img">
+            <span>Product img</span>
+          </div>
+        </div>
+
+        <div class="result-actions">
+          <button class="icon-btn" id="downloadBtnWrap" type="button" title="Download result">
+            <a id="downloadBtn" download="tryfit-result.png" aria-label="Download">
+              <svg viewBox="0 0 24 24"><path d="M12 3v13M6 11l6 6 6-6M5 21h14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </a>
+          </button>
+          <button class="text-btn" id="newTryonBtn" type="button">Try another</button>
+        </div>
+      </section>
+
+    </main>
+
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+<script src="popup.js"></script>
+</body>
+</html>
