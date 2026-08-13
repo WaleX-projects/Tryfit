@@ -84,6 +84,36 @@ class YouCamClient:
             data = response.json()
             return data["data"]["task_id"]
 
+
+
+
+
+    async def create_tryon_video_task(self, src_file_url: str, prompt: str = None) -> dict:
+        """ Creates a motion video from an image using the YouCam v2.0 API """
+        url = f"{self.BASE_URL}/task/image-to-video/youcam"
+        
+        # YouCam v2.0 REQUIRES a non-empty prompt describing the motion/pose
+        default_prompt = "The model turns smoothly and poses, showcasing the clothing item and outfit in motion."
+
+        payload = {
+            "src_file_url": src_file_url,
+            "resolution": "480",  # Supported options: "480", "720", "1080"
+            "dst_duration": 5,    # Supported options: 5, 10
+            "prompt": prompt or default_prompt,
+            "negative_prompt": "worst quality, low quality, JPEG compression residue, ugly.",
+            "model": "youcam-video-v2"
+        }
+
+        async with httpx.AsyncClient() as client:
+            response = await client.post(url, json=payload, headers=self.headers)
+            
+            # Log exact error payload from YouCam if request fails
+            if response.status_code != 200:
+                print(f"[YouCam Error {response.status_code}]: {response.text}")
+                response.raise_for_status()
+                
+            return response.json()
+
     async def get_task_status(self, task_id: str) -> Dict[str, Any]:
         """Step 6 & 7: Check the status of a virtual try-on task."""
         url = f"{self.BASE_URL}/task/cloth-v3/{task_id}"
@@ -92,3 +122,15 @@ class YouCamClient:
             response = await client.get(url, headers=self.headers)
             response.raise_for_status()
             return response.json()
+
+
+    async def get_task_video_status(self, task_id: str) -> Dict[str, Any]:
+        """Step 6 & 7: Check the status of a virtual try-on task."""
+        url = f"{self.BASE_URL}/task/image-to-video/youcam/{task_id}"
+
+        async with httpx.AsyncClient() as client:
+            response = await client.get(url, headers=self.headers)
+            response.raise_for_status()
+            return response.json()
+
+

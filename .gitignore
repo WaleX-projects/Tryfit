@@ -5,3 +5,5 @@ backend/.env/
 # environment variables
 backend/.env
 frontend/.env
+backend/aws/
+backend/awscliv2.zip

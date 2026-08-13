@@ -3,11 +3,21 @@ import json
 import base64
 import hmac
 import hashlib
-from fastapi import APIRouter, Depends, HTTPException, Header, Request
 from sqlalchemy.orm import Session
 from database import get_db
 from models import Task, WebhookLog
-from config import YOUCAM_WEBHOOK_SECRET
+from config import YOUCAM_WEBHOOK_SECRET,YOUCAM_API_KEY
+
+from fastapi import APIRouter, Depends, HTTPException, Header, Request, WebSocket, WebSocketDisconnect
+
+from typing import Dict, List
+from youcam_client import YouCamClient
+
+
+
+
+youcam_client = YouCamClient(api_key=YOUCAM_API_KEY)
+
 
 router = APIRouter(tags=["Webhook Operations"])
 Test = True
@@ -92,7 +102,6 @@ async def handle_webhook(
     task_id = payload.get("data", {}).get("task_id")
     task_status = payload.get("data", {}).get("task_status")
     
-
     # 3. Log to webhook_logs
     new_log = WebhookLog(
         task_id=task_id,
@@ -100,12 +109,69 @@ async def handle_webhook(
         event_type=task_status,
         payload=payload
     )
+
     db.add(new_log)
 
-    # 4. Update tasks status
     if task_id:
-        existing_task = db.query(Task).filter(Task.task_id == task_id).first()
-        if existing_task:
-            existing_task.status = task_status
+        task_type = None
+        db_task = None
+        result_url = None
+        
+        # --- HOW TO DISTINGUISH IMAGE VS VIDEO ---
+        # 1. First, check if it's a Video Task
+        video_task = db.query(VideoTask).filter(VideoTask.video_task_id == task_id).first()
+        
+        if video_task:
+            task_type = "video"
+            db_task = video_task
+            db_task.status = task_status
+
+            # If success, YouCam webhook doesn't give the URL directly. Fetch it here.
+            if task_status == "success":
+                try:
+                    task_response = await youcam_client.get_task_video_status(task_id)
+                    result_url = task_response.get('data',{}).get('url')
+                    if result_url:
+                        db_task.result_url = result_url
+                except Exception as e:
+                    print(f"Failed to fetch video URL for {task_id}: {e}")
+                    
+        else:
+            print('not video')
+            """
+            # 2. If not a video, check if it's an Image Task
+            image_task = db.query(Task).filter(Task.task_id == task_id).first()
+            if image_task:
+                task_type = "image"
+                db_task = image_task
+                db_task.status = task_status
+                
+                # If success, fetch the image URL
+                if task_status == "success":
+                    try:
+                        # Ensure you have a method like get_task_image_status in youcam_client
+                        task_response = await youcam_client.get_task_status(task_id)
+                        # Adjusted to standard YouCam image result path, change if different
+                        result_url = task_response.get('data', {}).get('result_url') or task_response.get('data', {}).get('result_file_url') 
+                        if result_url:
+                            db_task.result_url = result_url
+                    except Exception as e:
+                        print(f"Failed to fetch image URL for {task_id}: {e}")
+
+            """            
+        # Commit changes if a task was found
+        if db_task:
             db.commit()
+            
+            # --- BROADCAST VIA WEBSOCKET ---
+            await manager.broadcast_to_task(task_id, {
+                "status": task_status,
+                "task_type": task_type,
+                "result_url": getattr(db_task, 'result_url', None)
+            })
+        else:
+            print(f"⚠️ Webhook received for unknown task_id: {task_id}")
+
     return {"status": "success"}
+
+# ---------------------------
