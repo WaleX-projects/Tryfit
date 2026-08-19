@@ -452,6 +452,39 @@ button{ font-family: inherit; }
 }
 .text-btn:hover{ color: var(--ink-soft); }
 
+.shop-row{
+  margin-top: 14px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  flex-wrap: wrap;
+}
+.price-badge{
+  display:inline-flex;
+  align-items:center;
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
+  background: rgba(138,154,134,0.14);
+  color: var(--espresso);
+  font-size: 13px;
+  font-weight: 700;
+}
+.buy-link{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding: 8px 14px;
+  border-radius: var(--radius-sm);
+  background: var(--espresso);
+  color:#fff;
+  font-size: 12.5px;
+  font-weight:600;
+  text-decoration:none;
+  transition: opacity .18s var(--ease), transform .1s var(--ease);
+}
+.buy-link:hover{ opacity:.9; transform: translateY(-1px); }
+.buy-link svg{ flex-shrink:0; }
+
 /* ---------------------------------------------------------
    Screen 3 — Result of tryon
    --------------------------------------------------------- */
@@ -593,7 +626,7 @@ body:has([data-screen="gallery"].active){
 .gallery-item img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
 }
 
 .gallery-item-overlay {

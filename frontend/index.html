@@ -1,301 +1,530 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Tryfit — Instant AI Virtual Try-On for E-Commerce & Fashion</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --bg: #FBFBFB;
-      --panel: #FFFFFF;
-      --ink: #121212;
-      --ink-soft: #6B6B6B;
-      --ink-faint: #A8A8A4;
-      --line: rgba(18,18,18,0.08);
-      --sage: #8A9A86;
-      --espresso: #2C221E;
-      --amber: #F59E0B;
-      --emerald: #10B981;
-      --radius-lg: 20px;
-      --radius-md: 14px;
-      --radius-sm: 9999px;
-      --ease: cubic-bezier(.22,.68,0,1);
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tryfit — See it on you. Know your size. Before you buy.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:        #FBFBFB;
+    --panel:     #FFFFFF;
+    --ink:       #121212;
+    --ink-soft:  #6B6B6B;
+    --ink-faint: #A8A8A4;
+    --line:      rgba(18,18,18,0.08);
+    --sage:      #8A9A86;
+    --espresso:  #2C221E;
+    --emerald:   #10B981;
+    --rose:      #EF4444;
+    --radius-lg: 20px;
+    --radius-md: 14px;
+    --radius-sm: 9999px;
+    --ease: cubic-bezier(.22,.68,0,1);
+  }
 
-    * { box-sizing: border-box; }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
 
-    body {
-      margin: 0;
-      background: radial-gradient(120% 90% at 50% -10%, #ffffff 0%, var(--bg) 55%);
-      color: var(--ink);
-      font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      -webkit-font-smoothing: antialiased;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
+  body {
+    margin: 0;
+    background: radial-gradient(120% 90% at 50% -10%, #ffffff 0%, var(--bg) 55%);
+    color: var(--ink);
+    font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
 
-    header {
-      max-width: 1200px;
-      width: 100%;
-      margin: 0 auto;
-      padding: 24px 32px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
+  a { color: inherit; }
 
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
+  .wrap { max-width: 1160px; width: 100%; margin: 0 auto; padding-left: 32px; padding-right: 32px; }
 
-    .brand-mark {
-      width: 28px;
-      height: 28px;
-      background: var(--espresso);
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #fff;
-      font-weight: 800;
-      font-size: 14px;
-    }
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 24px 0;
+  }
+  .brand { display: flex; align-items: center; gap: 10px; }
+  .brand-mark {
+    width: 28px; height: 28px;
+    background: var(--espresso);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-weight: 800; font-size: 14px;
+  }
+  .brand-word { font-size: 13px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; }
 
-    .brand-word {
-      font-size: 14px;
-      font-weight: 700;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-    }
+  .nav-cta {
+    background: var(--espresso);
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: opacity .2s var(--ease);
+  }
+  .nav-cta:hover { opacity: 0.9; }
 
-    .nav-cta {
-      background: var(--espresso);
-      color: #fff;
-      padding: 10px 20px;
-      border-radius: var(--radius-sm);
-      font-size: 13px;
-      font-weight: 600;
-      text-decoration: none;
-      transition: opacity .2s var(--ease);
-    }
-    .nav-cta:hover { opacity: 0.9; }
+  /* ---------------- Hero ---------------- */
+  .hero {
+    padding: 48px 0 88px;
+    display: grid;
+    grid-template-columns: 1.05fr 0.95fr;
+    gap: 56px;
+    align-items: center;
+  }
+  @media (max-width: 900px) {
+    .hero { grid-template-columns: 1fr; text-align: center; gap: 40px; padding: 24px 0 56px; }
+    .hero-actions { justify-content: center; }
+  }
 
-    /* Hero Section */
-    .hero {
-      max-width: 1200px;
-      width: 100%;
-      margin: auto;
-      padding: 40px 32px 80px;
-      display: grid;
-      grid-template-columns: 1.1fr 0.9fr;
-      gap: 60px;
-      align-items: center;
-    }
+  .badge {
+    display: inline-block;
+    padding: 6px 14px;
+    background: rgba(138,154,134,0.15);
+    color: var(--espresso);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    border-radius: var(--radius-sm);
+    margin-bottom: 20px;
+  }
 
-    @media (max-width: 900px) {
-      .hero { grid-template-columns: 1fr; text-align: center; gap: 40px; }
-      .hero-content { display: flex; flex-direction: column; align-items: center; }
-    }
+  .hero-title {
+    font-size: clamp(34px, 4.2vw, 50px);
+    font-weight: 800;
+    line-height: 1.14;
+    letter-spacing: -0.03em;
+    margin: 0 0 20px;
+  }
+  .hero-title em { font-style: normal; color: var(--sage); }
 
-    .badge {
-      display: inline-block;
-      padding: 6px 14px;
-      background: rgba(138,154,134,0.15);
-      color: var(--espresso);
-      font-size: 11.5px;
-      font-weight: 700;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      border-radius: var(--radius-sm);
-      margin-bottom: 20px;
-    }
+  .hero-desc {
+    font-size: 16px;
+    color: var(--ink-soft);
+    line-height: 1.65;
+    margin: 0 0 32px;
+    max-width: 480px;
+  }
+  @media (max-width: 900px) { .hero-desc { margin-left: auto; margin-right: auto; } }
 
-    .hero-title {
-      font-size: clamp(36px, 4.5vw, 52px);
-      font-weight: 800;
-      line-height: 1.15;
-      letter-spacing: -0.03em;
-      color: var(--ink);
-      margin: 0 0 20px;
-    }
+  .hero-actions { display: flex; gap: 14px; align-items: center; }
 
-    .hero-title span {
-      color: var(--sage);
-    }
+  .btn-primary {
+    padding: 15px 28px;
+    background: var(--espresso);
+    color: #fff;
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    box-shadow: 0 10px 24px -10px rgba(44,34,30,0.4);
+    transition: transform .15s var(--ease), opacity .15s var(--ease);
+  }
+  .btn-primary:hover { opacity: 0.92; transform: translateY(-1px); }
 
-    .hero-desc {
-      font-size: 16px;
-      color: var(--ink-soft);
-      line-height: 1.6;
-      margin: 0 0 32px;
-      max-width: 500px;
-    }
+  .btn-secondary {
+    padding: 15px 28px;
+    background: transparent;
+    color: var(--ink);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background .15s var(--ease);
+  }
+  .btn-secondary:hover { background: rgba(0,0,0,0.03); }
 
-    .hero-actions {
-      display: flex;
-      gap: 14px;
-      align-items: center;
-    }
+  /* ---------------- Hero mockup: a live, auto-cycling preview of the real popup ---------------- */
+  .preview-container {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 28px;
+    padding: 24px;
+    box-shadow: 0 30px 60px -20px rgba(18,18,18,0.12);
+    max-width: 380px;
+    margin: 0 auto;
+    width: 100%;
+    position: relative;
+  }
 
-    .btn-primary {
-      padding: 15px 28px;
-      background: var(--espresso);
-      color: #fff;
-      border-radius: var(--radius-sm);
-      font-size: 14px;
-      font-weight: 600;
-      text-decoration: none;
-      box-shadow: 0 10px 24px -10px rgba(44,34,30,0.4);
-      transition: transform .15s var(--ease), opacity .15s var(--ease);
-    }
-    .btn-primary:hover { opacity: 0.92; transform: translateY(-1px); }
+  .mock-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 16px;
+    margin-bottom: 20px;
+    position: relative;
+  }
+  .mock-topbar::after {
+    content: "";
+    position: absolute; left: 0; right: 0; bottom: 0; height: 1px;
+    background: repeating-linear-gradient(90deg, var(--line) 0 6px, transparent 6px 10px);
+  }
+  .mock-brand { font-weight: 700; font-size: 12.5px; letter-spacing: 0.14em; text-transform: uppercase; }
+  .mock-credits {
+    font-size: 11px; font-weight: 600;
+    background: rgba(138,154,134,0.15); color: var(--espresso);
+    padding: 4px 10px; border-radius: var(--radius-sm);
+  }
 
-    .btn-secondary {
-      padding: 15px 28px;
-      background: transparent;
-      color: var(--ink);
-      border: 1px solid var(--line);
-      border-radius: var(--radius-sm);
-      font-size: 14px;
-      font-weight: 600;
-      text-decoration: none;
-      transition: background .15s var(--ease);
-    }
-    .btn-secondary:hover { background: rgba(0,0,0,0.03); }
+  .mock-stage { position: relative; min-height: 302px; }
+  .mock-step {
+    position: absolute; inset: 0;
+    opacity: 0; transform: translateY(6px);
+    transition: opacity .35s var(--ease), transform .35s var(--ease);
+    pointer-events: none;
+  }
+  .mock-step.is-active { opacity: 1; transform: translateY(0); pointer-events: auto; }
 
-    /* Interactive Extension Simulation Box */
-    .preview-container {
-      background: var(--panel);
-      border: 1px solid var(--line);
-      border-radius: 28px;
-      padding: 24px;
-      box-shadow: 0 30px 60px -20px rgba(18,18,18,0.12);
-      max-width: 400px;
-      margin: 0 auto;
-      width: 100%;
-      position: relative;
-    }
+  .mock-card-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+  .mock-card {
+    height: 148px;
+    border-radius: var(--radius-md);
+    display: flex; align-items: flex-end; justify-content: center;
+    position: relative; overflow: hidden;
+  }
+  .mock-card span {
+    position: relative; z-index: 2;
+    background: rgba(255,255,255,0.9);
+    margin-bottom: 10px;
+    padding: 4px 10px;
+    border-radius: var(--radius-sm);
+    font-weight: 600; font-size: 11px; color: var(--ink);
+  }
+  .mock-card.filled-user   { background: url('https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80') center/cover; }
+  .mock-card.filled-product { background: url('https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=400&q=80') center/cover; }
 
-    .mock-topbar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding-bottom: 16px;
-      border-bottom: 1px dashed var(--line);
-      margin-bottom: 20px;
-    }
+  .mock-size-chip {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 14px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    font-size: 12px; color: var(--ink-soft);
+    margin-bottom: 14px;
+  }
+  .mock-size-chip b { color: var(--ink); font-weight: 600; }
 
-    .mock-card-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 14px;
-      margin-bottom: 20px;
-    }
+  .mock-btn {
+    width: 100%;
+    padding: 14px;
+    background: var(--espresso);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-weight: 600;
+    font-size: 13.5px;
+  }
 
-    .mock-card {
-      height: 160px;
-      background: #F4F3F0;
-      border-radius: var(--radius-md);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      color: var(--ink-soft);
-      font-size: 12px;
-      font-weight: 500;
-      border: 2px dashed rgba(138,154,134,0.4);
-    }
+  .mock-size-suggestion {
+    margin-top: 10px;
+    text-align: center;
+    font-size: 11.5px;
+    font-weight: 600;
+    line-height: 1.6;
+  }
+  .mock-size-suggestion .est { color: var(--sage); display: block; }
+  .mock-size-suggestion .chart { color: var(--emerald); display: block; }
 
-    .mock-card.filled-user {
-      background: url('https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80') center/cover;
-      border: none;
-      position: relative;
-    }
+  /* Step 2: changing room */
+  .mock-loading {
+    height: 260px;
+    border-radius: var(--radius-lg);
+    background: #EDEBE6;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 16px;
+  }
+  .mock-spinner {
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    border: 3px solid rgba(44,34,30,0.15);
+    border-top-color: var(--espresso);
+    animation: mockSpin 1s linear infinite;
+  }
+  @keyframes mockSpin { to { transform: rotate(360deg); } }
+  .mock-loading p { margin: 0; font-size: 12.5px; color: var(--ink-soft); }
 
-    .mock-card.filled-product {
-      background: url('https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=400&q=80') center/cover;
-      border: none;
-      position: relative;
-    }
+  /* Step 3: result */
+  .mock-result {
+    height: 260px;
+    border-radius: var(--radius-lg);
+    background: url('https://images.unsplash.com/photo-1490114538077-0a7f8cb49891?auto=format&fit=crop&w=500&q=80') center/cover;
+    position: relative;
+  }
+  .mock-result::after {
+    content: "Done";
+    position: absolute; top: 12px; right: 12px;
+    background: var(--emerald); color: #fff;
+    font-size: 11px; font-weight: 700;
+    padding: 5px 11px; border-radius: var(--radius-sm);
+  }
+  .mock-result-actions { display: flex; gap: 10px; margin-top: 14px; }
+  .mock-chip-btn {
+    flex: 1; padding: 11px; text-align: center;
+    border: 1px solid var(--line); border-radius: var(--radius-sm);
+    font-size: 12px; font-weight: 600; color: var(--ink-soft);
+  }
 
-    .mock-card span {
-      background: rgba(255,255,255,0.85);
-      padding: 4px 10px;
-      border-radius: var(--radius-sm);
-      font-weight: 600;
-      color: var(--ink);
-    }
+  /* Floating widget cameo in the hero, to show the tray without a second mockup */
+  .mock-floating-note {
+    position: absolute; bottom: -14px; right: -14px;
+    background: var(--espresso); color: #fff;
+    width: 40px; height: 40px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+    box-shadow: 0 8px 18px rgba(0,0,0,0.25);
+  }
+  .mock-floating-note .dot {
+    position: absolute; top: -3px; right: -3px;
+    width: 12px; height: 12px; border-radius: 50%;
+    background: var(--rose);
+    border: 2px solid var(--bg);
+  }
 
-    .mock-btn {
-      width: 100%;
-      padding: 14px;
-      background: var(--espresso);
-      color: #fff;
-      border: none;
-      border-radius: var(--radius-sm);
-      font-weight: 600;
-      font-size: 13.5px;
-      cursor: pointer;
-    }
+  /* ---------------- Sections ---------------- */
+  section { padding: 72px 0; }
+  .eyebrow {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--sage); margin-bottom: 10px;
+  }
+  .section-title { font-size: clamp(26px, 3vw, 34px); font-weight: 800; letter-spacing: -0.02em; margin: 0 0 16px; }
+  .section-desc { font-size: 15px; color: var(--ink-soft); line-height: 1.65; max-width: 560px; }
 
-    footer {
-      text-align: center;
-      padding: 24px;
-      font-size: 12px;
-      color: var(--ink-faint);
-      border-top: 1px solid var(--line);
-      margin-top: auto;
-    }
-  </style>
+  /* Spotlight: size assistant */
+  .spotlight {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 28px;
+    padding: 48px;
+    display: grid;
+    grid-template-columns: 1fr 0.85fr;
+    gap: 48px;
+    align-items: center;
+  }
+  @media (max-width: 900px) { .spotlight { grid-template-columns: 1fr; padding: 32px; } }
+
+  .spotlight-demo {
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    padding: 22px;
+  }
+  .spotlight-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 0;
+  }
+  .spotlight-row + .spotlight-row { border-top: 1px dashed var(--line); }
+  .spotlight-row .label { font-size: 12px; color: var(--ink-faint); text-transform: uppercase; letter-spacing: 0.06em; }
+  .spotlight-row .value { font-size: 14px; font-weight: 600; }
+  .spotlight-row .value.chart { color: var(--emerald); }
+
+  /* Feature grid */
+  .feature-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    margin-top: 40px;
+  }
+  @media (max-width: 900px) { .feature-grid { grid-template-columns: 1fr; } }
+
+  .feature-card {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    padding: 28px;
+  }
+  .feature-icon {
+    width: 40px; height: 40px;
+    border-radius: 11px;
+    background: rgba(138,154,134,0.15);
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 18px;
+    font-size: 18px;
+  }
+  .feature-card h3 { font-size: 16px; font-weight: 700; margin: 0 0 8px; }
+  .feature-card p { font-size: 13.5px; color: var(--ink-soft); line-height: 1.6; margin: 0; }
+
+  /* How it works */
+  .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; margin-top: 40px; }
+  @media (max-width: 900px) { .steps { grid-template-columns: 1fr; } }
+  .step-num {
+    font-size: 13px; font-weight: 800; color: var(--sage);
+    margin-bottom: 10px;
+  }
+  .steps h3 { font-size: 15.5px; font-weight: 700; margin: 0 0 6px; }
+  .steps p { font-size: 13.5px; color: var(--ink-soft); line-height: 1.6; margin: 0; }
+
+  footer {
+    text-align: center;
+    padding: 28px 0;
+    font-size: 12px;
+    color: var(--ink-faint);
+    border-top: 1px solid var(--line);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .mock-step, .mock-spinner { transition: none; animation: none; }
+  }
+</style>
 </head>
 <body>
 
+<div class="wrap">
   <header>
     <div class="brand">
       <div class="brand-mark">T</div>
       <div class="brand-word">Tryfit</div>
     </div>
-    <a href="#try" class="nav-cta">Install Extension</a>
+    <a href="#install" class="nav-cta">Add to Chrome</a>
   </header>
 
   <main class="hero">
     <div class="hero-content">
-      <div class="badge">Next-Gen AI Fashion Tech</div>
-      <h1 class="hero-title">See how clothes fit you <span>instantly</span>, before buying.</h1>
-      <p class="hero-desc">Tryfit integrates directly into your browser workflow. Upload your photo and any apparel item online to preview hyper-realistic AI try-ons in seconds.</p>
+      <div class="badge">AI Try-On, Right On The Page</div>
+      <h1 class="hero-title">See how it looks. Know your <em>size</em>. Before you buy.</h1>
+      <p class="hero-desc">
+        Hover any product photo on any shopping site, hit Try On, and see a photorealistic
+        preview of you wearing it — still or in motion. Tryfit also reads your usual size
+        against that store's own size chart, so you're not just guessing what "M" means this time.
+      </p>
       <div class="hero-actions">
-        <a href="#" class="btn-primary">Add to Chrome — Free</a>
-        <a href="#features" class="btn-secondary">Learn More</a>
+        <a href="#install" class="btn-primary">Add to Chrome — Free</a>
+        <a href="#features" class="btn-secondary">See how it works</a>
       </div>
     </div>
 
-    <div class="preview-container">
-      <div class="mock-topbar">
-        <div style="font-weight:700; font-size:13px; letter-spacing:0.1em;">TRYFIT STUDIO</div>
-        <div style="font-size: 11px; background: rgba(138,154,134,0.15); color: var(--espresso); padding: 4px 10px; border-radius: var(--radius-sm); font-weight:600;">3 Credits Left</div>
-      </div>
-      <div class="mock-card-grid">
-        <div class="mock-card filled-user">
-          <span>Your Photo</span>
+    <div>
+      <div class="preview-container" id="mock">
+        <div class="mock-topbar">
+          <div class="mock-brand">Tryfit Studio</div>
+          <div class="mock-credits">3 Credits Left</div>
         </div>
-        <div class="mock-card filled-product">
-          <span>Product Item</span>
+
+        <div class="mock-stage">
+          <div class="mock-step is-active" data-step="hub">
+            <div class="mock-card-grid">
+              <div class="mock-card filled-product"><span>Product photo</span></div>
+              <div class="mock-card filled-user"><span>Your photo</span></div>
+            </div>
+            <div class="mock-size-chip"><span>5'6&Prime; &middot; 140lb &middot; Usually <b>M</b></span><span>&rsaquo;</span></div>
+            <button class="mock-btn">Try On</button>
+            <div class="mock-size-suggestion">
+              <span class="est">Your usual size: M</span>
+              <span class="chart">This site's size chart: L</span>
+            </div>
+          </div>
+
+          <div class="mock-step" data-step="changing">
+            <div class="mock-loading">
+              <div class="mock-spinner"></div>
+              <p>Draping fabric and aligning seams&hellip;</p>
+            </div>
+          </div>
+
+          <div class="mock-step" data-step="result">
+            <div class="mock-result"></div>
+            <div class="mock-result-actions">
+              <div class="mock-chip-btn">Download</div>
+              <div class="mock-chip-btn">Try on in motion</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mock-floating-note">
+          👗
+          <span class="dot"></span>
         </div>
       </div>
-      <button class="mock-btn">Try On Outfit (-1 credit)</button>
     </div>
   </main>
+</div>
 
-  <footer>
-    &copy; 2026 Tryfit Inc. All rights reserved. Built for seamless style.
-  </footer>
+<div class="wrap" id="features">
+  <section>
+    <div class="eyebrow">The standout part</div>
+    <div class="spotlight">
+      <div>
+        <h2 class="section-title">Not just a preview. A size you can trust a little more.</h2>
+        <p class="section-desc">
+          Set your height, weight, and usual size once — Tryfit remembers it everywhere.
+          On a product page, it reads that store's own size chart and translates your
+          size into their label, because a "M" at one brand is rarely a "M" at another.
+        </p>
+      </div>
+      <div class="spotlight-demo">
+        <div class="spotlight-row"><span class="label">Your profile</span><span class="value">5'6&Prime; &middot; 140lb &middot; M</span></div>
+        <div class="spotlight-row"><span class="label">General estimate</span><span class="value">M</span></div>
+        <div class="spotlight-row"><span class="label">This store's chart</span><span class="value chart">L</span></div>
+      </div>
+    </div>
+
+    <div class="feature-grid">
+      <div class="feature-card">
+        <div class="feature-icon">🖱️</div>
+        <h3>Hover, tap, done</h3>
+        <p>A Try On button appears right on the product photo, on any shopping site. No uploads to a separate app, no new tab.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🎞️</div>
+        <h3>See it in motion</h3>
+        <p>Go beyond a still photo — generate a short motion try-on of the same look once you like the still result.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🕓</div>
+        <h3>Never lose a try-on</h3>
+        <p>Close the tab, keep browsing — a small floating tray keeps every try-on running and lets you pick any of them back up, done or not.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="eyebrow">How it works</div>
+    <h2 class="section-title">Three steps, on the page you're already on</h2>
+    <div class="steps">
+      <div>
+        <div class="step-num">01</div>
+        <h3>Hover a product</h3>
+        <p>Browse normally. A Try On button appears over any product photo Tryfit recognizes.</p>
+      </div>
+      <div>
+        <div class="step-num">02</div>
+        <h3>Add your photo, once</h3>
+        <p>Upload your photo the first time — Tryfit reuses it for every try-on after that.</p>
+      </div>
+      <div>
+        <div class="step-num">03</div>
+        <h3>Decide with more than a guess</h3>
+        <p>See the look, still or in motion, next to your size translated into that store's own chart.</p>
+      </div>
+    </div>
+  </section>
+</div>
+
+<footer id="install">
+  &copy; 2026 Tryfit Inc. Built for seamless style.
+</footer>
+
+<script>
+  (function () {
+    var steps = document.querySelectorAll('.mock-step');
+    var order = ['hub', 'changing', 'result'];
+    var i = 0;
+    var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduced || !steps.length) return;
+
+    setInterval(function () {
+      i = (i + 1) % order.length;
+      steps.forEach(function (el) {
+        el.classList.toggle('is-active', el.getAttribute('data-step') === order[i]);
+      });
+    }, 2400);
+  })();
+</script>
 
 </body>
 </html>

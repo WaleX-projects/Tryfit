@@ -1,40 +1,46 @@
 {
-"manifest_version": 3,
-"name": "TryFit - AI Virtual Try-On",
-"description": "Try on clothes instantly while shopping online",
-"version": "1.0",
-"icons": {
-"128": "icon.png"
-},
-"permissions": [
-"activeTab",
-"scripting",
-"identity",
-"storage"
-],
-"host_permissions": [
-"https://tryfit.ddns.net/*",
-"<all_urls>"
-],
-"background": {
-"service_worker": "background.js"
-},
-"oauth2": {
-"client_id": "266798082032-lmat0lnjaork4o9ldl2fv7ekhkb91cbi.apps.googleusercontent.com",
-"scopes": [
-"openid",
-"email",
-"profile"
-]
-},
-"content_scripts": [
-{
-"matches": ["<all_urls>"],
-"js": ["content.js"],
-"css": ["styles.css"]
-}
-],
-"action": {
-"default_popup": "popup.html"
-}
+    "manifest_version": 3,
+    "name": "TryFit - AI Virtual Try-On",
+    "description": "Try on clothes instantly while shopping online",
+    "version": "1.0",
+    "icons": {
+        "128": "icon.png"
+    },
+    "permissions": [
+        "activeTab",
+        "scripting",
+        "identity",
+        "storage"
+    ],
+    "host_permissions": [
+        "https://tryfit.ddns.net/*",
+        "<all_urls>"
+    ],
+    "background": {
+        "service_worker": "background.js"
+    },
+    "oauth2": {
+        "client_id": "266798082032-lmat0lnjaork4o9ldl2fv7ekhkb91cbi.apps.googleusercontent.com",
+        "scopes": [
+            "openid",
+            "email",
+            "profile"
+        ]
+    },
+    "content_scripts": [
+        {
+            "matches": [
+                "<all_urls>"
+            ],
+            "js": [
+                "content.js"
+            ],
+            "css": [
+                "styles.css"
+            ]
+        }
+    ],
+    "action": {
+        "default_popup": "popup.html"
+    }
 }

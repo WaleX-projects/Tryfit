@@ -1,6 +1,7 @@
 import asyncio
 import json
 from typing import Optional
+import traceback
 
 from fastapi import (
     APIRouter,
@@ -24,27 +25,51 @@ from websocket_manager import manager
 
 from fastapi import WebSocket, WebSocketDisconnect
 
-router = APIRouter(prefix="/image", tags=["Image Operations"])
+router = APIRouter(prefix="/api", tags=["Image Operations"])
+
+
+
+
 
 youcam_client = YouCamClient(api_key=YOUCAM_API_KEY)
 
+
+
+#---------------------------------------------------------------------------------------------
+#                            REQUEST  & RESPONSE MODELS 
+#----------------------------------------------------------------------------------------------
 
 # --- Image Models & Helpers ---
 class ImageRequest(BaseModel):
     ref_file_url: str
     garment_category: str = "full_body"
     change_shoes: bool = True
+    price_of_product: Optional[int] = None
+    url_of_product: str
+
 
 
 def process_image_json(
     ref_file_url: str = Form(...),
     garment_category: str = Form("full_body"),
     change_shoes: bool = Form(True),
+    price_of_product: Optional[int] = None,
+    url_of_product: str = Form(...)
 ) -> ImageRequest:
+
+    print(
+        ref_file_url,
+        garment_category,
+        change_shoes,
+        price_of_product,
+        url_of_product
+    )
     return ImageRequest(
         ref_file_url=ref_file_url,
         garment_category=garment_category,
         change_shoes=change_shoes,
+        price_of_product=price_of_product,
+        url_of_product=url_of_product
     )
 
 
@@ -60,13 +85,15 @@ def process_video_json(
 
 
 # --- Image Endpoints ---
-@router.post("/api/v1/tryon", summary="Generate a try-on image using YouCam API")
+@router.post("/image/v1/tryon", summary="Generate a try-on image using YouCam API")
 async def generate_image(
     request: ImageRequest = Depends(process_image_json),
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
     uploaded_file: UploadFile = File(...),
 ):
+
+    
     if current_user.credits <= 0:
         raise HTTPException(
             status_code=status.HTTP_402_PAYMENT_REQUIRED,
@@ -107,14 +134,15 @@ async def generate_image(
                 status_code=502,
                 detail="Failed to stream binary payload to storage provider.",
             )
-
+       
         task_id = await youcam_client.create_tryon_task(
             src_file_id=src_file_id,
             ref_file_url=request.ref_file_url,
             garment_category=request.garment_category,
             change_shoes=request.change_shoes,
         )
-
+        
+        #asyncio.time(10)
         current_user.credits -= 1
 
         task = Task(
@@ -124,8 +152,12 @@ async def generate_image(
             ref_file_url=request.ref_file_url,
             garment_category=request.garment_category,
             change_shoes=request.change_shoes,
+            url_of_product=request.url_of_product,
+            price_of_product=request.price_of_product,
             status="pending",
         )
+
+        
         db.add(task)
         db.commit()
 
@@ -141,93 +173,21 @@ async def generate_image(
         raise
     except Exception as e:
         db.rollback()
+        print("IMAGE TRYON ERROR:")
+        traceback.print_exc()
         raise HTTPException(status_code=500, detail=str(e))
 
 
-async def sse_generator(task_id: str, db: Session, user_id: str):
-    retry_delay = 2
-
-    while True:
-        try:
-            task_response = await youcam_client.get_task_status(task_id)
-        except Exception as e:
-            error_payload = json.dumps({"status": "error", "message": str(e)})
-            yield f"data: {error_payload}\n\n"
-            break
-
-        data_payload = task_response.get("data", {}) or {}
-        task_status = data_payload.get("task_status")
-
-        results = data_payload.get("results") or {}
-        result_url = results.get("url") if isinstance(results, dict) else None
-        error_msg = data_payload.get("error")
-
-        if not task_status:
-            not_found_payload = json.dumps({
-                "task_id": task_id,
-                "status": "not_found",
-                "message": f"Task {task_id} not found.",
-            })
-            yield f"data: {not_found_payload}\n\n"
-            break
-
-        existing_task = (
-            db.query(Task)
-            .filter(Task.task_id == task_id, Task.user_id == user_id)
-            .first()
-        )
-
-        if existing_task:
-            existing_task.status = task_status
-            if result_url:
-                existing_task.result_url = result_url
-            if error_msg:
-                existing_task.error_message = str(error_msg)
-            db.commit()
-
-        payload = {
-            "task_id": task_id,
-            "status": task_status,
-            "result_url": result_url,
-            "error": error_msg,
-        }
-        yield f"data: {json.dumps(payload)}\n\n"
-
-        if task_status in ["success", "failed", "error"]:
-            break
-
-        await asyncio.sleep(retry_delay)
-
-
-@router.get(
-    "/api/v1/task/{task_id}",
-    summary="Get the status of a try-on task via SSE",
-    response_class=StreamingResponse,
-)
-async def stream_task_status(
-    task_id: str,
-    current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db),
-):
-    return StreamingResponse(
-        sse_generator(task_id, db, current_user.id),
-        media_type="text/event-stream",
-        headers={
-            "Cache-Control": "no-cache",
-            "Connection": "keep-alive",
-            "X-Accel-Buffering": "no",
-        },
-    )
 
 
 
-
-
-
+# ---------------------------------------------------------------------------------------------
+#                            VIDEO ENDPOINTS
+# ---------------------------------------------------------------------------------------------
 
 
 @router.post(
-    "/api/v1/tryon-motion", summary="Generate a try-on video using YouCam API"
+    "/video/v1/tryon-motion", summary="Generate a try-on video using YouCam API"
 )
 async def generate_video(
     requests: VideoRequest = Depends(process_video_json),
@@ -276,8 +236,8 @@ async def generate_video(
         current_user.credits -= VIDEO_CREDIT_COST
 
         new_video_task = VideoTask(
-            task_id=existing_task.task_id,   # FK linking to static task in tasks table
-            video_task_id=video_task_id,   # YouCam's remote video processing ID
+            image_task_id=existing_task.task_id,
+            video_task_id=video_task_id,
             user_id=current_user.id,
             status="pending",
         )
@@ -301,13 +261,86 @@ async def generate_video(
 
 
 
+
+
+     
 @router.websocket("/ws/task-status/{task_id}")
-async def websocket_task_status(websocket: WebSocket, task_id: str):
-    await manager.connect(websocket, task_id)
+async def websocket_task_status(
+    websocket: WebSocket,
+    task_id: str,
+    task_type: Optional[str] = None,
+    db: Session = Depends(get_db),
+):
+
+    print("========== WEBSOCKET ==========")
+    print("task_id:", task_id)
+    print("task_type:", task_type)
+
+    if task_type == "video":
+
+        db_task = (
+            db.query(VideoTask)
+            .filter(
+                VideoTask.video_task_id == task_id
+            )
+            .first()
+        )
+
+    else:
+
+        db_task = (
+            db.query(Task)
+            .filter(
+                Task.task_id == task_id
+            )
+            .first()
+        )
+
+    print("db_task:", db_task)
+
+    if db_task is None:
+
+        print("❌ TASK NOT FOUND")
+
+        await websocket.close(code=1008)
+
+        return
+
+    print("✅ TASK FOUND")
+
+    await manager.connect(
+        websocket,
+        task_id,
+    )
+
     try:
+
+        if task_type == "video":
+
+            await websocket.send_json({
+                "type": "video_status",
+                "video_task_id": db_task.video_task_id,
+                "status": db_task.status,
+                "video_url": db_task.result_url,
+                "error": db_task.error_message,
+            })
+
+        else:
+
+            await websocket.send_json({
+                "type": "image_status",
+                "task_id": db_task.task_id,
+                "status": db_task.status,
+                "image_url": db_task.result_url,
+                "error": db_task.error_message,
+            })
+
         while True:
-            # Keep the connection open and wait for client disconnection
-            # We just wait for ping/pong or client closure
-            data = await websocket.receive_text()
+            await websocket.receive_text()
+
     except WebSocketDisconnect:
-        manager.disconnect(websocket, task_id)
+
+        manager.disconnect(
+            websocket,
+            task_id,
+        )

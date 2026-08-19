@@ -13,6 +13,9 @@
     token: null,
     credits: 3,
     history: [], // Stores past try-on results fetched from API
+    taskId: null, // Currently running task, so Cancel can actually tell background.js to stop it
+    productUrl: null, // Canonical URL of the shopping-page item being tried on
+    priceInfo: null, // { raw, price, currency } scraped from that page, or null
   };
 
   // DOM elements map for quick access
@@ -63,6 +66,10 @@
     productThumb: document.getElementById("productThumb"),
     downloadBtn: document.getElementById("downloadBtn"),
     newTryonBtn: document.getElementById("newTryonBtn"),
+
+    shopRow: document.getElementById("shopRow"),
+    priceBadge: document.getElementById("priceBadge"),
+    buyLink: document.getElementById("buyLink"),
 
     toast: document.getElementById("toast"),
   };
@@ -225,6 +232,12 @@
   /**
    * Fetches the user's try-on gallery history from the FastAPI backend endpoint.
    */
+
+  function loadingState(){
+
+    
+
+  }
   async function fetchUserGallery() {
     if (!state.token) return;
     try {
@@ -284,6 +297,8 @@
         if (e.target.closest(".fav-btn") || e.target.closest(".del-btn")) return;
         state.userSrc = item.src_file_url || item.userSrc;
         state.productSrc = item.ref_file_url || item.productSrc;
+        state.productUrl = item.url_of_product || item.productUrl || null;
+        state.priceInfo = item.price_of_product ? { raw: String(item.price_of_product), price: item.price_of_product } : null;
         renderResult(imgUrl);
         showScreen("result");
       });
@@ -463,14 +478,41 @@
   if (els.newTryonBtn) els.newTryonBtn.addEventListener("click", resetToHub);
 
   /**
+   * Asks the content script running on the active tab for a best-effort
+   * product price and canonical URL. The popup has no DOM access of its
+   * own, so this is the only way it can know what page the user is
+   * shopping on. Fails soft - a missing/blocked content script just means
+   * no price/checkout link on the result screen, not a broken try-on.
+   */
+  function getActiveTabProductInfo() {
+    return new Promise((resolve) => {
+      chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+        const tab = tabs && tabs[0];
+        if (!tab || !tab.id) return resolve({ productUrl: null, priceInfo: null });
+        chrome.tabs.sendMessage(tab.id, { action: "getPageProductInfo" }, (response) => {
+          if (chrome.runtime.lastError || !response) {
+            resolve({ productUrl: tab.url || null, priceInfo: null });
+          } else {
+            resolve(response);
+          }
+        });
+      });
+    });
+  }
+
+  /**
    * Initiates virtual try-on API flow with background service worker.
    */
-  function startTryOn() {
+  async function startTryOn() {
     state.credits -= 1;
     updateCreditsDisplay();
 
     showScreen("changing");
     if (els.loadingLabel) els.loadingLabel.textContent = "Connecting to fitting room\u2026";
+
+    const pageInfo = await getActiveTabProductInfo();
+    state.productUrl = pageInfo.productUrl || null;
+    state.priceInfo = pageInfo.priceInfo || null;
 
     chrome.runtime.sendMessage(
       {
@@ -480,6 +522,8 @@
           productRefUrl: state.productSrc,
           garmentCategory: "full_body",
           changeShoes: true,
+          productUrl: state.productUrl,
+          priceInfo: state.priceInfo,
         },
       },
       (response) => {
@@ -491,9 +535,10 @@
 
         const taskData = response.data;
         if (taskData && taskData.task_id) {
+          state.taskId = taskData.task_id;
           subscribeProgress(taskData.task_id);
-        } else if (taskData && taskData.result_url) {
-          handleSuccess(taskData.result_url);
+        } else if (taskData && (taskData.result_url || taskData.image_url || taskData.url)) {
+          handleSuccess(taskData.result_url || taskData.image_url || taskData.url);
         } else {
           // Fallback simulation if testing locally
           mockTryOnAPI(state.userSrc, state.productSrc).then(handleSuccess);
@@ -503,11 +548,17 @@
   }
 
   /**
-   * Subscribes to Server-Sent Events progress updates for a running task.
+   * Subscribes to task status updates via the background service worker's
+   * WebSocket connection (background.js's "listenTaskStatus" handler).
    * @param {string} taskId - Unique task ID returned from API
    */
   function subscribeProgress(taskId) {
-    chrome.runtime.sendMessage({ action: "subscribeToProgress", taskId: taskId });
+    chrome.runtime.sendMessage({
+      action: "listenTaskStatus",
+      taskId,
+      task_type: "image",
+      meta: { productUrl: state.productUrl, priceInfo: state.priceInfo },
+    });
 
     const messageListener = (msg) => {
       if (msg.taskId !== taskId) return;
@@ -516,7 +567,8 @@
         if (els.loadingLabel) els.loadingLabel.textContent = msg.status || "Processing...";
       } else if (msg.type === "complete") {
         chrome.runtime.onMessage.removeListener(messageListener);
-        handleSuccess(msg.data.result_url);
+        const data = msg.data || {};
+        handleSuccess(data.image_url || data.result_url || data.url);
       } else if (msg.type === "error") {
         chrome.runtime.onMessage.removeListener(messageListener);
         toast(msg.error || "Generation failed.");
@@ -528,6 +580,7 @@
   }
 
   function handleSuccess(resultSrc) {
+    state.taskId = null;
     // Refresh user's gallery collection from API backend
     fetchUserGallery();
 
@@ -537,6 +590,10 @@
 
   function cancelTryOn() {
     clearProcessingTimers();
+    if (state.taskId) {
+      chrome.runtime.sendMessage({ action: "cancelProgress_websocket", taskId: state.taskId });
+      state.taskId = null;
+    }
     showScreen("hub");
   }
 
@@ -567,10 +624,39 @@
     if (els.userThumb) els.userThumb.src = state.userSrc;
     if (els.productThumb) els.productThumb.src = state.productSrc;
     if (els.downloadBtn) els.downloadBtn.href = resultSrc;
-    
+
+    updateShopRow();
+
     // Ensure the before image width matches full container size so object-fit: contain doesn't distort
     updateRevealWidth();
     setReveal(50);
+  }
+
+  /**
+   * Shows a price badge and "View product & checkout" link on the result
+   * screen when we know where the tried-on item came from. Hidden entirely
+   * if neither a price nor a product URL was found for this try-on.
+   */
+  function updateShopRow() {
+    if (!els.shopRow) return;
+    const hasPrice = state.priceInfo && state.priceInfo.raw;
+    const hasUrl = !!state.productUrl;
+
+    if (!hasPrice && !hasUrl) {
+      els.shopRow.style.display = "none";
+      return;
+    }
+
+    if (hasUrl && els.buyLink) els.buyLink.href = state.productUrl;
+    if (els.priceBadge) {
+      if (hasPrice) {
+        els.priceBadge.textContent = state.priceInfo.raw;
+        els.priceBadge.style.display = "";
+      } else {
+        els.priceBadge.style.display = "none";
+      }
+    }
+    els.shopRow.style.display = "flex";
   }
 
   function updateRevealWidth() {

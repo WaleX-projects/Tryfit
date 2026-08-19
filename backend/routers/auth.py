@@ -48,6 +48,9 @@ async def get_current_user(
     token: Optional[str] = Query(None),
     db: Session = Depends(get_db)
 ) -> User:
+
+    print(f"Authorization Header: {authorization}")
+    print(f"Token Query Param: {token}")
     """
     Dependency that extracts token from either:
       1. 'Authorization: Bearer <token>' Header
